@@ -10,15 +10,15 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
-            CallbackDemoView()
+            DemoView(.callback)
                 .tabItem {
                     Label("Callback", systemImage: "arrow.triangle.2.circlepath")
                 }
-            CombineDemoView()
+            DemoView(.combine)
                 .tabItem {
                     Label("Combine", systemImage: "link")
                 }
-            AsyncDemoView()
+            DemoView(.asyncType)
                 .tabItem {
                     Label("Async", systemImage: "bolt")
                 }
