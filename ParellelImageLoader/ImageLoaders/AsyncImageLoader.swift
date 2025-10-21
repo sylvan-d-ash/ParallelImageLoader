@@ -8,25 +8,30 @@
 import UIKit
 
 final class AsyncImageLoader {
+    private let dataSource: ImageDataSource
+
+    init(dataSource: ImageDataSource) {
+        self.dataSource = dataSource
+    }
+
     func loadImages(from urls: [URL]) async -> [UIImage] {
         await withTaskGroup(of: UIImage?.self) { group in
             for url in urls {
-                group.addTask {
-                    do {
-                        let (data, _) = try await URLSession.shared.data(from: url)
-                        return UIImage(data: data)
-                    } catch {
-                        return nil
-                    }
+                group.addTask { [weak dataSource] in
+                    await dataSource?.fetchImage(url: url)
                 }
             }
 
             var images = [UIImage]()
             var counter = 1
             for await image in group {
-                let image = image ?? UIImage(systemName: "arrow.triangle.\(counter).circlepath")
-                images.append(image ?? UIImage())
-                counter += 1
+                if let image = image {
+                    images.append(image)
+                } else {
+                    let image = UIImage(systemName: "arrow.triangle.\(counter).circlepath") ?? UIImage()
+                    images.append(image)
+                    counter += 1
+                }
             }
 
             return images

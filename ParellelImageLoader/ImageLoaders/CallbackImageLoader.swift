@@ -8,23 +8,26 @@
 import UIKit
 
 final class CallbackImageLoader {
+    private let dataSource: ImageDataSource
+
+    init(dataSource: ImageDataSource) {
+        self.dataSource = dataSource
+    }
+
     func loadImages(from urls: [URL], completion: @escaping ([UIImage]) -> Void) {
         let group = DispatchGroup()
-        let queue = DispatchQueue(label: "callback.image.loader", attributes: .concurrent)
-        var images = [UIImage]()
+        var images: [UIImage?] = Array(repeating: nil, count: urls.count)
 
-        for url in urls {
+        for (index, url) in urls.enumerated() {
             group.enter()
-            queue.async {
-                if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
-                    images.append(image)
-                }
+            dataSource.fetchImage(url: url) { image in
+                images[index] = image
                 group.leave()
             }
         }
 
         group.notify(queue: .main) {
-            completion(images)
+            completion(images.compactMap(\.self))
         }
     }
 }

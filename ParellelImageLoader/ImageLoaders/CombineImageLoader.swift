@@ -9,15 +9,24 @@ import Combine
 import UIKit
 
 final class CombineImageLoader {
+    private let dataSource: ImageDataSource
+
+    init(dataSource: ImageDataSource) {
+        self.dataSource = dataSource
+    }
+
     func loadImages(from urls: [URL]) -> AnyPublisher<[UIImage], Never> {
         let publishers = urls.map { url in
-            URLSession.shared.dataTaskPublisher(for: url)
-                .map { UIImage(data: $0.data)! }
-                .replaceError(with: UIImage())
+            Future<UIImage, Never> { [weak dataSource] promise in
+                dataSource?.fetchImage(url: url) { image in
+                    promise(.success(image))
+                }
+            }
         }
 
         return Publishers.MergeMany(publishers)
             .collect()
+            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 }
