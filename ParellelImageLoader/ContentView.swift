@@ -10,13 +10,17 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         TabView {
+            CallbackDemoView()
+                .tabItem {
+                    Label("Callback", systemImage: "arrow.triangle.2.circlepath")
+                }
             CombineDemoView()
                 .tabItem {
                     Label("Combine", systemImage: "link")
                 }
-            CallbackDemoView()
+            AsyncDemoView()
                 .tabItem {
-                    Label("Callback", systemImage: "arrow.triangle.2.circlepath")
+                    Label("Async", systemImage: "bolt")
                 }
         }
     }
