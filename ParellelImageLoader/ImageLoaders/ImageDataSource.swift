@@ -24,22 +24,22 @@ protocol ImageDataSource: AnyObject {
 
 final class NetworkImageDataSource: ImageDataSource {
     func fetchImage(url: URL, completion: @escaping (UIImage) -> Void) {
-        URLSession.shared.dataTask(with: url) { data, _, _ in
-            if let data = data, let image = UIImage(data: data) {
+        DispatchQueue.global(qos: .background).async {
+            if let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                print("[Network] image fetched")
                 completion(image)
             } else {
+                print("[Network] no image data")
                 completion(UIImage())
             }
         }
     }
 
     func fetchImage(url: URL) async -> UIImage {
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            return UIImage(data: data) ?? UIImage()
-        } catch {
-            print("Error: \(error.localizedDescription)")
-            return UIImage()
+        await withCheckedContinuation { continuation in
+            self.fetchImage(url: url) { image in
+                continuation.resume(returning: image)
+            }
         }
     }
 }

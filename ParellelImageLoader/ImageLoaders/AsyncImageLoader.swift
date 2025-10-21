@@ -22,16 +22,9 @@ final class AsyncImageLoader {
                 }
             }
 
-            var images = [UIImage]()
-            var counter = 1
+            var images: [UIImage] = []
             for await image in group {
-                if let image = image {
-                    images.append(image)
-                } else {
-                    let image = UIImage(systemName: "arrow.triangle.\(counter).circlepath") ?? UIImage()
-                    images.append(image)
-                    counter += 1
-                }
+                images.append(image ?? UIImage())
             }
 
             return images

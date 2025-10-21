@@ -16,18 +16,18 @@ final class CallbackImageLoader {
 
     func loadImages(from urls: [URL], completion: @escaping ([UIImage]) -> Void) {
         let group = DispatchGroup()
-        var images: [UIImage?] = Array(repeating: nil, count: urls.count)
+        var images: [UIImage] = []
 
-        for (index, url) in urls.enumerated() {
+        for url in urls {
             group.enter()
             dataSource.fetchImage(url: url) { image in
-                images[index] = image
+                images.append(image)
                 group.leave()
             }
         }
 
         group.notify(queue: .main) {
-            completion(images.compactMap(\.self))
+            completion(images)
         }
     }
 }
