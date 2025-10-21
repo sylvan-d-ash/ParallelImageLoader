@@ -16,10 +16,14 @@ struct CombineDemoView: View {
         VStack {
             if images.isEmpty {
                 ProgressView("Loading Images...")
-                    .task {
+                    .onAppear {
+                        print("Loading start...")
                         CombineImageLoader().loadImages(from: ImageURL.urls)
                             .receive(on: DispatchQueue.main)
-                            .sink { self.images = $0 }
+                            .sink { images in
+                                print("loading complete")
+                                self.images = images
+                            }
                             .store(in: &cancellables)
                     }
             } else {
